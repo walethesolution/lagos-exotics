@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-import Layout from "../components/Layout";
-import Admin from "../components/Admin";
+import ProductForm from "../../src/components/ProductForm";
+import Layout from "@/src/components/Layout";
 
 const page = () => {
   return (
     <Layout>
-      <></>
+      <ProductForm />
     </Layout>
   );
 };

@@ -1,11 +1,11 @@
-import Layout from "./components/Layout";
-import { initialMenuData } from "./data/menu";
-import Home from "./components/Home";
+import React from "react";
+import Layout from "../src/components/Layout";
+import EnterProduct from "@/src/components/EnterProduct";
 
-const IndexPage = () => {
+const IndexPage: React.FC = () => {
   return (
     <Layout>
-      <></>
+      <EnterProduct />
     </Layout>
   );
 };
