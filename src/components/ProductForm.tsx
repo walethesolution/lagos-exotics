@@ -8,7 +8,7 @@ import { FormDataContext } from "./FormDataContext";
 
 interface FormData {
   productName: string;
-  category: string;
+  category_name: string;
   measurements: string[];
 }
 
@@ -54,7 +54,7 @@ const ProductForm: React.FC = () => {
 
     const newFormData: FormData = {
       productName,
-      category,
+      category_name: category,
       measurements,
     };
 
