@@ -115,67 +115,72 @@ const ProductForm: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center mx-4 mt-10">
-      <h1 className="text-4xl font-bold text-[#ae8625]">{category}</h1>
-      {showSuccessMessage && (
-        <p className="text-green-500 font-semibold">Item added successfully</p>
-      )}
-      <>
-        <form className="w-full max-w-lg mt-4" onSubmit={handleSubmit}>
-          <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full px-3">
-              <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Product name
-              </label>
-              <input
-                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-400 rounded py-2.5 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="product-name"
-                type="text"
-                value={productName}
-                onChange={handleProductNameChange}
-                required
-              />
-              <p className="text-red-500 text-xs italic">
-                Please fill out this field.
-              </p>
-            </div>
-          </div>
-          {category && menuData[category] && (
-            <div className="flex flex-col mb-2 gap-2">
-              {menuData[category].map((measurement, index) => (
-                <label
-                  key={index}
-                  htmlFor={`measurement_${index}`}
-                  className="flex flex-wrap text-gray-500">
-                  <input
-                    className="w-1/2 appearance-none block bg-gray-200 text-gray-700 border border-gray-400 rounded py-2.5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                    id={`measurement_${index}`}
-                    type="number"
-                    value={measurements[index] || ""}
-                    placeholder={measurement}
-                    onChange={(e) => handleMeasurementChange(index, e)}
-                  />
+    <Suspense fallback={<div>Loading...</div>}>
+      {" "}
+      <div className="flex flex-col items-center justify-center mx-4 mt-10">
+        <h1 className="text-4xl font-bold text-[#ae8625]">{category}</h1>
+        {showSuccessMessage && (
+          <p className="text-green-500 font-semibold">
+            Item added successfully
+          </p>
+        )}
+        <>
+          <form className="w-full max-w-lg mt-4" onSubmit={handleSubmit}>
+            <div className="flex flex-wrap -mx-3 mb-6">
+              <div className="w-full px-3">
+                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  Product name
                 </label>
-              ))}
+                <input
+                  className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-400 rounded py-2.5 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                  id="product-name"
+                  type="text"
+                  value={productName}
+                  onChange={handleProductNameChange}
+                  required
+                />
+                <p className="text-red-500 text-xs italic">
+                  Please fill out this field.
+                </p>
+              </div>
             </div>
-          )}
-          <div className="flex gap-3">
-            <button
-              onClick={handleAddItem}
-              type="submit"
-              className="w-1/3 shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4">
-              Add Item
-            </button>
-            <Link
-              href={"/"}
-              className="w-1/3 shadow bg-black hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4">
-              Homepage
-            </Link>
-          </div>
-        </form>
-      </>
-      {showItems && <AddedProducts />}
-    </div>
+            {category && menuData[category] && (
+              <div className="flex flex-col mb-2 gap-2">
+                {menuData[category].map((measurement, index) => (
+                  <label
+                    key={index}
+                    htmlFor={`measurement_${index}`}
+                    className="flex flex-wrap text-gray-500">
+                    <input
+                      className="w-1/2 appearance-none block bg-gray-200 text-gray-700 border border-gray-400 rounded py-2.5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                      id={`measurement_${index}`}
+                      type="number"
+                      value={measurements[index] || ""}
+                      placeholder={measurement}
+                      onChange={(e) => handleMeasurementChange(index, e)}
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={handleAddItem}
+                type="submit"
+                className="w-1/3 shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4">
+                Add Item
+              </button>
+              <Link
+                href={"/"}
+                className="w-1/3 shadow bg-black hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4">
+                Homepage
+              </Link>
+            </div>
+          </form>
+        </>
+        {showItems && <AddedProducts />}
+      </div>
+    </Suspense>
   );
 };
 
