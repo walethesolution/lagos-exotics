@@ -97,7 +97,7 @@ const AddedProducts: React.FC = () => {
         },
         body: JSON.stringify({
           productName: product.productName,
-          category: product.category_name,
+          category_name: product.category_name,
           measurements: product.measurements,
         }),
       });
@@ -109,7 +109,7 @@ const AddedProducts: React.FC = () => {
             item.productName === product.productName
               ? {
                   ...item,
-                  category: product.category_name,
+                  category_name: product.category_name,
                   measurements: product.measurements,
                 }
               : item
