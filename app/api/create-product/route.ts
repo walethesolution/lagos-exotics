@@ -3,13 +3,13 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { productName, category, measurements } = await request.json();
+    const { productName, category_name, measurements } = await request.json();
 
 
     // Insert new record into the database
     await sql`
       INSERT INTO Products (ProductName, Categories, Measurements)
-      VALUES (${productName}, ${category}, ${measurements})
+      VALUES (${productName}, ${category_name}, ${measurements})
     `;
 
     // Return success response

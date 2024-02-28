@@ -45,6 +45,41 @@ const ProductForm: React.FC = () => {
     setMeasurements(updatedMeasurements);
   };
 
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   if (!productName.trim()) {
+  //     return;
+  //   }
+
+  //   const newFormData: FormData = {
+  //     productName,
+  //     category_name: category,
+  //     measurements,
+  //   };
+
+  //   try {
+  //     const response = await fetch("/api/create-product", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(newFormData),
+  //     });
+
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setFormDataList([...formDataList, newFormData]);
+  //       setProductName("");
+  //       setMeasurements([]);
+  //     } else {
+  //       console.error("Failed to insert product");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error inserting product:", error);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -59,24 +94,20 @@ const ProductForm: React.FC = () => {
     };
 
     try {
-      const response = await fetch("/api/create-product", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newFormData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setFormDataList([...formDataList, newFormData]);
-        setProductName("");
-        setMeasurements([]);
-      } else {
-        console.error("Failed to insert product");
+      const savedData = localStorage.getItem("formDataList");
+      let formDataList: FormData[] = [];
+      if (savedData) {
+        formDataList = JSON.parse(savedData);
       }
+      formDataList.push(newFormData);
+      localStorage.setItem("formDataList", JSON.stringify(formDataList));
+
+      setFormDataList([...formDataList, newFormData]);
+      setProductName("");
+      setMeasurements([]);
+      alert("Product saved!");
     } catch (error) {
-      console.error("Error inserting product:", error);
+      console.error("Error saving product data to localStorage:", error);
     }
   };
 
