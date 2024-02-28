@@ -82,10 +82,10 @@ const AddedProducts: React.FC = () => {
 
   const groupedData: { [key: string]: typeof formDataList } = {};
   formDataList.forEach((formData) => {
-    if (!groupedData[formData.category]) {
-      groupedData[formData.category] = [];
+    if (!groupedData[formData.category_name]) {
+      groupedData[formData.category_name] = [];
     }
-    groupedData[formData.category].push(formData);
+    groupedData[formData.category_name].push(formData);
   });
 
   const handleEdit = async (product: Product) => {
@@ -97,7 +97,7 @@ const AddedProducts: React.FC = () => {
         },
         body: JSON.stringify({
           productName: product.productName,
-          category: product.category,
+          category: product.category_name,
           measurements: product.measurements,
         }),
       });
@@ -109,7 +109,7 @@ const AddedProducts: React.FC = () => {
             item.productName === product.productName
               ? {
                   ...item,
-                  category: product.category,
+                  category: product.category_name,
                   measurements: product.measurements,
                 }
               : item

@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState } from "react";
 
 export interface FormData {
   productName: string;
-  category: string;
+  category_name: string;
   measurements: string[];
 }
 
