@@ -1,6 +1,6 @@
 "use client";
 import { menuData } from "../data/menu";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, useContext, Suspense } from "react";
 import AddedProducts from "./AddedProducts";
@@ -21,7 +21,6 @@ const ProductForm: React.FC = () => {
 
   const searchParams = useSearchParams();
   const category = searchParams.get("category") ?? "";
-  const pathname = usePathname();
 
   useEffect(() => {
     if (showSuccessMessage) {
