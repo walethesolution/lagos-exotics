@@ -13,7 +13,7 @@ interface FormData {
 }
 
 const ProductForm: React.FC = () => {
-  const { formDataList, setFormDataList } = useContext(FormDataContext);
+  const { setFormDataList } = useContext(FormDataContext);
   const [productName, setProductName] = useState<string>("");
   const [measurements, setMeasurements] = useState<string[]>([]);
   const [showItems, setShowItems] = useState<boolean>(false);
@@ -101,7 +101,7 @@ const ProductForm: React.FC = () => {
       formDataList.push(newFormData);
       localStorage.setItem("formDataList", JSON.stringify(formDataList));
 
-      setFormDataList([...formDataList, newFormData]);
+      setFormDataList([newFormData]);
       setProductName("");
       setMeasurements([]);
       alert("Product saved!");
