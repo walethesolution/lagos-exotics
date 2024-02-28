@@ -1,18 +1,16 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Lag from "../../public/lag.jpg";
+import Lag from "../../public/logo.svg";
 
 const Header: React.FC = () => {
   return (
-    <header>
-      <Link href={"/"} className="flex flex-col gap-2 items-center mt-4">
-        <p className="text-4xl font-bold text-center italic text-black">
-          Lagos Exotics
-        </p>
-        <div className="w-8 rounded-lg">
+    <header className="flex items-center mx-auto gap-2">
+      <Link href={"/"} className="flex  gap-2 items-center">
+        <div className="rounded-lg">
           <Image src={Lag} alt="logo" />
         </div>
+        <p className="text-4xl text-center text-black">Lagos Exotics</p>
       </Link>
     </header>
   );

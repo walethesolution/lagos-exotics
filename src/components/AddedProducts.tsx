@@ -1,15 +1,46 @@
 "use client";
-import React, { useState } from "react";
-import { menuData } from "../data/menu";
+import React, { useContext, useState } from "react";
+import { menuData, Product } from "../data/menu";
 import { EditIcon } from "./EditIcon";
 import { DeleteIcon } from "./DeleteIcon";
+import { useRouter, usePathname } from "next/navigation";
+import { FormDataContext } from "./FormDataContext";
+
+interface DeleteConfirmationModalProps {
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+  onConfirm,
+  onCancel,
+}) => {
+  return (
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div className="bg-white p-4 rounded-lg">
+        <p>Are you sure you want to delete this product?</p>
+        <div className="flex justify-center mt-4">
+          <button
+            className="bg-red-500 text-white px-4 py-2 mr-2 rounded"
+            onClick={onConfirm}>
+            Delete
+          </button>
+          <button
+            className="bg-gray-500 text-white px-4 py-2 rounded"
+            onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface ConfirmationModalProps {
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-// ConfirmationModal component for displaying confirmation dialog
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   onCancel,
@@ -35,17 +66,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   );
 };
 
-export interface AddedProductsProps {
-  formDataList: {
-    productName: string;
-    measurements: string[];
-    category: string;
-  }[];
-}
-
-const AddedProducts: React.FC<AddedProductsProps> = ({ formDataList }) => {
+const AddedProducts: React.FC = () => {
+  const { formDataList, setFormDataList } = useContext(FormDataContext);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] =
+    useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   if (!formDataList) {
     return <div>No data available</div>;
@@ -59,12 +88,77 @@ const AddedProducts: React.FC<AddedProductsProps> = ({ formDataList }) => {
     groupedData[formData.category].push(formData);
   });
 
-  const handleEdit = (formData: any) => {
-    console.log("Edit", formData);
+  const handleEdit = async (product: Product) => {
+    try {
+      const response = await fetch(`/api/update-product`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productName: product.productName,
+          category: product.category,
+          measurements: product.measurements,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Product edited successfully!");
+        setFormDataList((prevFormDataList) =>
+          prevFormDataList.map((item) =>
+            item.productName === product.productName
+              ? {
+                  ...item,
+                  category: product.category,
+                  measurements: product.measurements,
+                }
+              : item
+          )
+        );
+      } else {
+        console.error("HTTP error:", response.status);
+      }
+    } catch (error) {
+      console.error("Error editing product:", error);
+    }
   };
 
-  const handleDelete = (formData: any) => {
-    console.log("Delete", formData);
+  // Define a single function to handle deletion
+  const handleDelete = (product: Product) => {
+    setSelectedProduct(product);
+    setShowDeleteConfirmation(true);
+  };
+
+  // Function to handle confirmation and deletion
+  const confirmDelete = async () => {
+    setShowDeleteConfirmation(false);
+    if (selectedProduct) {
+      try {
+        const response = await fetch(`/api/delete-product`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productName: selectedProduct.productName }),
+        });
+
+        if (response.ok) {
+          setFormDataList(
+            formDataList.filter((product) => product !== selectedProduct)
+          );
+        } else {
+          console.error("HTTP error:", response.status);
+        }
+      } catch (error) {
+        console.error("Error deleting product:", error);
+      }
+    }
+  };
+
+  // Function to handle cancellation of deletion
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(false);
+    setSelectedProduct(null);
   };
 
   const handleSubmit = () => {
@@ -74,8 +168,7 @@ const AddedProducts: React.FC<AddedProductsProps> = ({ formDataList }) => {
   const handleConfirmation = async (confirmed: boolean) => {
     if (confirmed) {
       try {
-        // Make an HTTP POST request to the menu route with formDataList
-        const response = await fetch("/menu", {
+        const response = await fetch("/api/create-product", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -84,17 +177,16 @@ const AddedProducts: React.FC<AddedProductsProps> = ({ formDataList }) => {
         });
 
         if (response.ok) {
-          // If the request is successful, set submitted to true
-          setSubmitted(true);
-
-          // Optionally, you can perform additional actions upon successful submission
           console.log("Data submitted successfully!");
+          console.log(
+            "Form Data List being sent to ReadOnlyProducts:",
+            formDataList
+          );
+          router.push("/menu");
         } else {
-          // Handle HTTP errors
           console.error("HTTP error:", response.status);
         }
       } catch (error) {
-        // Handle other errors
         console.error("Error submitting data:", error);
       }
     }
@@ -155,6 +247,14 @@ const AddedProducts: React.FC<AddedProductsProps> = ({ formDataList }) => {
                   </>
                 )}
               </div>
+              {/* {selectedProduct === formData && (
+                // <EditProduct
+                //   selectedProduct={selectedProduct}
+                //   setSelectedProduct={setSelectedProduct}
+                //   formDataList={formDataList}
+                //   setFormDataList={setFormDataList}
+                // />
+              )} */}
             </div>
           ))}
         </div>
@@ -168,10 +268,18 @@ const AddedProducts: React.FC<AddedProductsProps> = ({ formDataList }) => {
           </button>
         </div>
       )}
-      {showConfirmation && (
-        <ConfirmationModal
-          onConfirm={() => handleConfirmation(true)}
-          onCancel={() => handleConfirmation(false)}
+      <>
+        {showConfirmation && (
+          <ConfirmationModal
+            onConfirm={() => handleConfirmation(true)}
+            onCancel={() => handleConfirmation(false)}
+          />
+        )}
+      </>
+      {showDeleteConfirmation && (
+        <DeleteConfirmationModal
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
         />
       )}
     </div>

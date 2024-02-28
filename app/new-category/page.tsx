@@ -1,12 +1,14 @@
 import React from "react";
+import NewCategory from "@/src/components/NewCategory";
 import Layout from "@/src/components/Layout";
-import ProductForm from "@/src/components/ProductForm";
 
 const page = () => {
   return (
-    <Layout>
-      <ProductForm />
-    </Layout>
+    <div>
+      <Layout>
+        <NewCategory />
+      </Layout>
+    </div>
   );
 };
 

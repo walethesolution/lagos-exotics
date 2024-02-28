@@ -1,23 +1,27 @@
 "use client";
 import { menuData } from "../data/menu";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import AddedProducts from "./AddedProducts";
-import ReadOnlyProducts from "./ReadOnlyProducts";
+import { FormDataContext } from "./FormDataContext";
+
+interface FormData {
+  productName: string;
+  category: string;
+  measurements: string[];
+}
 
 const ProductForm: React.FC = () => {
+  const { formDataList, setFormDataList } = useContext(FormDataContext);
   const [productName, setProductName] = useState<string>("");
   const [measurements, setMeasurements] = useState<string[]>([]);
   const [showItems, setShowItems] = useState<boolean>(false);
-  const [formDataList, setFormDataList] = useState<
-    {
-      productName: string;
-      measurements: string[];
-      category: string;
-    }[]
-  >([]);
   const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
+
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category") ?? "";
+  const pathname = usePathname();
 
   useEffect(() => {
     if (showSuccessMessage) {
@@ -27,9 +31,6 @@ const ProductForm: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [showSuccessMessage]);
-
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category");
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProductName(e.target.value);
@@ -44,26 +45,40 @@ const ProductForm: React.FC = () => {
     setMeasurements(updatedMeasurements);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!productName.trim()) {
       return;
     }
 
-    const categoryValue = category || "";
-
-    const newFormData = {
+    const newFormData: FormData = {
       productName,
+      category,
       measurements,
-      category: categoryValue,
     };
 
-    console.log("Form Data :", newFormData);
-    setFormDataList([...formDataList, newFormData]);
-    setProductName(" ");
-    setMeasurements([]);
-    setShowSuccessMessage(true);
+    try {
+      const response = await fetch("/api/create-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newFormData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        setFormDataList([...formDataList, newFormData]);
+        setProductName("");
+        setMeasurements([]);
+      } else {
+        console.error("Failed to insert product");
+      }
+    } catch (error) {
+      console.error("Error inserting product:", error);
+    }
   };
 
   const handleAddItem = () => {
@@ -102,8 +117,7 @@ const ProductForm: React.FC = () => {
                 <label
                   key={index}
                   htmlFor={`measurement_${index}`}
-                  className="flex flex-wrap text-gray-500"
-                >
+                  className="flex flex-wrap text-gray-500">
                   <input
                     className="w-1/2 appearance-none block bg-gray-200 text-gray-700 border border-gray-400 rounded py-2.5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id={`measurement_${index}`}
@@ -120,20 +134,18 @@ const ProductForm: React.FC = () => {
             <button
               onClick={handleAddItem}
               type="submit"
-              className="w-1/3 shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4"
-            >
+              className="w-1/3 shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4">
               Add Item
             </button>
             <Link
               href={"/"}
-              className="w-1/3 shadow bg-black hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4"
-            >
+              className="w-1/3 shadow bg-black hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-3 px-4 rounded text-center mt-4">
               Homepage
             </Link>
           </div>
         </form>
       </>
-      {showItems && <AddedProducts formDataList={formDataList} />}
+      {showItems && <AddedProducts />}
     </div>
   );
 };
